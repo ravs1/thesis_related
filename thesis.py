@@ -1,4 +1,10 @@
-#importing libraries
+
+print('Starting Thesis Milestone:1')
+print('Checkpoint 0:Begin')
+print('Importing necessary Libraries')
+#######################################################################################################################
+##################################################importing libraries##################################################
+#######################################################################################################################
 from sklearn.ensemble import RandomForestClassifier
 
 from sklearn.model_selection import train_test_split
@@ -34,7 +40,12 @@ import json
 import logging
 
 
+print('Imported all files ')
+print('Checkpoint 0:End')
+print('Checkpoint 1:Begin')
+print('Loading Data')
 
+##################################################Disassembly Class ###################################################
 class Disassembly:
 
     def __init__(self, code):
@@ -87,10 +98,14 @@ class Disassembly:
 
 
 
-# loading data
+# ########################################################loading data#################################################
 df = pd.read_csv('/Users/ravishaggarwal/Desktop/contracts.csv', sep=',')
+print(' data is loaded')
 
-#source Ethereum yellow paper
+print('Checkpoint 1:End')
+
+
+#############################################source Ethereum yellow paper##############################################
 EVM_OPCODE_SET = {'STOP', 'ADD', 'MUL', 'SUB', 'DIV', 'SDIV', 'MOD', 'SMOD', 'ADDMOD', 'MULMOD', 'EXP', 'SIGNEXTEND',
                  'LT','GT', 'SLT', 'SGT', 'EQ', 'ISZERO', 'AND', 'OR', 'XOR', 'NOT', 'BYTE','SHA3',
                  'ADDRESS', 'BALANCE', 'ORIGIN', 'CALLER', 'CALLVALUE', 'CALLDATALOAD', 'CALLDATASIZE', 'CALLDATACOPY',
@@ -106,38 +121,66 @@ EVM_OPCODE_SET = {'STOP', 'ADD', 'MUL', 'SUB', 'DIV', 'SDIV', 'MOD', 'SMOD', 'AD
                   'INVALID','SELFDESTRUCT'}
 
 
-#print(df.head(5))
-#translating the bytecodes to opcodes
+print('Checkpoint 2:Begin')
+print('translating the bytecodes to opcodes')
+######################################translating the bytecodes to opcodes#############################################
 opcodes = []
-try:
-    for i in df['result.code']:
-        #print(i)
-        desc = Disassembly(i)
-        #desc.instruction_list
-        #print(desc.get_easm())
-        opcodes.append(desc.get_easm())
-except:
-    pass
+for index, row in df['result.code'].T.iteritems():
+    desc = Disassembly(row)
+    opcodes.append(desc.get_easm())
+print('Extracted Opcodes')
+print('length of Opcodes',len(opcodes))
+print('Checkpoint 2: End')
+
+print('Checkpoint 3: Begin')
+print('adding another column Opcodes1 in df')
+
+###############################Adding another column 'Opcodes' to the existing data frame##############################
+df['Opcodes1'] = opcodes
+print('Checkpoint 3: End')
+
+print('Checkpoint 4: Begin')
+print('splitting the opcodes ')
+
+###############################splitting the opcodes##################################################################
+split = []
+for index,row in df['Opcodes1'].T.iteritems():
+    g = row.split()
+    split.append(g)
+
+print('Done splitting')
+print('length of split is ',len(split))
+
+print('Checkpoint 4: End')
+
+print('Checkpoint 5: Begin')
+
+##################################adding another column in the df split_opcodes########################################
+df['split_opcodes'] = split
+
+print('Checkpoint 5: End')
+
+#####################################list of splits ##################################################################
+
+print('Checkpoint 6: Start')
+print('creating list of split_opcodes')
+
+s = []
+for index, row in df['split_opcodes'].T.iteritems():
+    s += row
+
+print('Checkpoint 6: End')
+
+#########################################obtaining clean opcodes#######################################################
+print('Checkpoint 7: Start')
+print('obtaining clean opcodes')
+clean = []
+for word in s:
+    if(word in EVM_OPCODE_SET):
+        clean.append(word)
+
+print('length of clean opcodes is ',len(clean))
+print('Checkpoint 7: End')
 
 
-source_words = []
-try:
-    for i in df_opcodes:
-        source = i.split()
-        source_words.append(source)
-        #for w in source_words:
-            #if (w in EVM_OPCODE_SET):
-                #clean_ops_0.append(w)
-except:
-    pass
 
-clean_ops = []
-try:
-    for w in source_words:
-        if (w in EVM_OPCODE_SET):
-            clean_ops.append(w)
-
-except:
-    pass
-
-len(clean_ops)
